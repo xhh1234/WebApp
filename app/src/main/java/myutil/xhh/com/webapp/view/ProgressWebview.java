@@ -1,7 +1,10 @@
 package myutil.xhh.com.webapp.view;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
+import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.Gravity;
@@ -11,12 +14,16 @@ import android.widget.ProgressBar;
 
 import com.tencent.smtt.export.external.interfaces.SslError;
 import com.tencent.smtt.export.external.interfaces.SslErrorHandler;
+import com.tencent.smtt.export.external.interfaces.WebResourceRequest;
+import com.tencent.smtt.export.external.interfaces.WebResourceResponse;
 import com.tencent.smtt.sdk.TbsVideo;
 import com.tencent.smtt.sdk.VideoActivity;
 import com.tencent.smtt.sdk.WebChromeClient;
 import com.tencent.smtt.sdk.WebSettings;
 import com.tencent.smtt.sdk.WebView;
 import com.tencent.smtt.sdk.WebViewClient;
+
+import java.util.Map;
 
 import myutil.xhh.com.webapp.R;
 
@@ -70,6 +77,7 @@ public class ProgressWebview extends WebView {
         getSettings().setSavePassword(true);
         getSettings().setSaveFormData(true);// 保存表单数据
         getSettings().setSupportMultipleWindows(true);// 新加
+        getSettings().setAllowFileAccess(true); // 允许访问文件
 
 
 
@@ -107,13 +115,43 @@ public class ProgressWebview extends WebView {
         public boolean shouldOverrideUrlLoading(WebView view, String url) {
             //在当前Activity打开
             Log.e("视频", "shouldOverrideUrlLoading: "+url);
-            if (url.contains("video")){
-                if(TbsVideo.canUseTbsPlayer(mContext)) {
-                    TbsVideo.openVideo(mContext, url);
+            if(url.startsWith("intent")||url.startsWith("youku")){
+
+                return true;
+            }else{
+                return super.shouldOverrideUrlLoading(view, url);
+            }
+
+
+//            if (url.contains("video")){
+//                Log.e("视频1", "shouldOverrideUrlLoading: "+url);
+//                if(TbsVideo.canUseTbsPlayer(mContext)) {
+//                    TbsVideo.openVideo(mContext, url);
+//                }
+//            }
+//            view.loadUrl(url);
+//            return true;
+        }
+
+        @Override
+        public WebResourceResponse shouldInterceptRequest(WebView webView, final WebResourceRequest webResourceRequest) {
+            if (webResourceRequest != null && webResourceRequest.getUrl() != null) {
+                Log.e("视频2", "shouldInterceptRequest: "+webResourceRequest.getUrl());
+            }
+            return super.shouldInterceptRequest(webView, webResourceRequest);
+        }
+
+        @Override
+        public WebResourceResponse shouldInterceptRequest(WebView view, String url) {
+            if (!TextUtils.isEmpty(url) && Uri.parse(url).getScheme() != null) {
+                Log.e("视频3", "shouldInterceptRequest: "+url );
+
+                String scheme = Uri.parse(url).getScheme().trim();
+                if (scheme.equalsIgnoreCase("http") || scheme.equalsIgnoreCase("https")) {
+                    return super.shouldInterceptRequest(view, url);
                 }
             }
-            view.loadUrl(url);
-            return true;
+            return super.shouldInterceptRequest(view, url);
         }
 
         @Override
@@ -130,7 +168,6 @@ public class ProgressWebview extends WebView {
                 mListener.onPageFinish(view);
             }
             super.onPageFinished(view, url);
-
         }
 
     }

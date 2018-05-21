@@ -4,11 +4,14 @@ import android.app.Application;
 import android.util.Log;
 
 import com.tencent.smtt.sdk.QbSdk;
+import com.tencent.smtt.sdk.TbsDownloader;
 
 public class BaseApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+
+        TbsDownloader.needDownload(getApplicationContext(), false);
         //初始化X5内核
         QbSdk.initX5Environment(this, new QbSdk.PreInitCallback() {
             @Override

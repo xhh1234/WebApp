@@ -22,7 +22,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initData() {
-        mWebView.loadUrl("http://www.baidu.com");//在这里填写你自己的Url就可以了
+        mWebView.loadUrl("http://www.baidu.com/");//在这里填写你自己的Url就可以了
     }
 
     private void initView() {
